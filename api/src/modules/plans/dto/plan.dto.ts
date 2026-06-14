@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional, IsString, IsArray, IsNumber, ValidateNested } from 'class-validator';
+import { IsEnum, IsOptional, IsString, IsArray, IsNumber, ValidateNested, IsObject } from 'class-validator';
 import { Type } from 'class-transformer';
 import { IncidentType, Severity } from '../../../entities/incident.entity';
 import { ActionType } from '../../../entities/plan-action.entity';
@@ -10,7 +10,9 @@ export class CreatePlanActionDto {
   @IsEnum(ActionType)
   actionType: ActionType;
 
-  parameters: Record<string, any>;
+  @IsOptional()
+  @IsObject()
+  parameters?: Record<string, any>;
 
   @IsString()
   description: string;

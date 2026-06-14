@@ -75,7 +75,7 @@ export class PlansService {
         planId: savedPlan.id,
         step: a.step,
         actionType: a.actionType,
-        parameters: a.parameters,
+        parameters: a.parameters || {},
         description: a.description,
       }),
     );
@@ -106,7 +106,7 @@ export class PlansService {
           planId: id,
           step: a.step,
           actionType: a.actionType,
-          parameters: a.parameters,
+          parameters: a.parameters || {},
           description: a.description,
         }),
       );

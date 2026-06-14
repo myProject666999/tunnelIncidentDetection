@@ -6,6 +6,7 @@ import Badge from '@/components/Badge';
 import { planApi } from '@/api';
 import type { EmergencyPlan, IncidentType, IncidentSeverity, ActionType } from '@/types';
 import { severityConfig, typeConfig } from '@/utils';
+import { useAlertStore } from '@/store/useAlertStore';
 
 const actionTypeLabels: Record<ActionType, string> = {
   led_display: 'LED屏显示',
@@ -19,6 +20,7 @@ const actionTypeLabels: Record<ActionType, string> = {
 };
 
 export default function PlanList() {
+  const addAlert = useAlertStore((s) => s.addAlert);
   const [plans, setPlans] = useState<EmergencyPlan[]>([]);
   const [loading, setLoading] = useState(false);
   const [expandedId, setExpandedId] = useState<number | null>(null);
@@ -47,15 +49,33 @@ export default function PlanList() {
   const handleToggle = async (plan: EmergencyPlan) => {
     try {
       await planApi.update(plan.id, { enabled: !plan.enabled });
+      addAlert({
+        title: '操作成功',
+        message: `预案"${plan.name}"已${plan.enabled ? '禁用' : '启用'}`,
+      });
       loadPlans();
-    } catch {}
+    } catch (error: any) {
+      addAlert({
+        title: '操作失败',
+        message: error?.response?.data?.message || '请稍后重试',
+      });
+    }
   };
 
   const handleDelete = async (id: number) => {
     try {
       await planApi.delete(id);
+      addAlert({
+        title: '删除成功',
+        message: '预案已删除',
+      });
       loadPlans();
-    } catch {}
+    } catch (error: any) {
+      addAlert({
+        title: '删除失败',
+        message: error?.response?.data?.message || '请稍后重试',
+      });
+    }
   };
 
   const handleCreate = async () => {
@@ -63,6 +83,10 @@ export default function PlanList() {
     setCreating(true);
     try {
       await planApi.create(createForm);
+      addAlert({
+        title: '创建成功',
+        message: `预案"${createForm.name}"已创建`,
+      });
       setShowCreate(false);
       setCreateForm({
         name: '',
@@ -71,7 +95,12 @@ export default function PlanList() {
         actions: [{ step: 1, actionType: 'led_display', parameters: { text: '前方事故，慢行' }, description: 'LED屏显示警示信息' }],
       });
       loadPlans();
-    } catch {}
+    } catch (error: any) {
+      addAlert({
+        title: '创建失败',
+        message: error?.response?.data?.message || '请检查数据后重试',
+      });
+    }
     setCreating(false);
   };
 

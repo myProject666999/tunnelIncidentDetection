@@ -7,6 +7,7 @@ import { incidentApi, tunnelApi } from '@/api';
 import type { Incident, IncidentStatus, IncidentSeverity, IncidentType, Tunnel } from '@/types';
 import { severityConfig, statusConfig, typeConfig, sourceConfig, formatDateTime, getTimeAgo } from '@/utils';
 import { useNavigate } from 'react-router-dom';
+import { useAlertStore } from '@/store/useAlertStore';
 
 const statusOptions: { value: IncidentStatus | ''; label: string }[] = [
   { value: '', label: '全部状态' },
@@ -26,6 +27,7 @@ const severityOptions: { value: IncidentSeverity | ''; label: string }[] = [
 
 export default function IncidentList() {
   const navigate = useNavigate();
+  const addAlert = useAlertStore((s) => s.addAlert);
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -77,6 +79,10 @@ export default function IncidentList() {
         ...createForm,
         reporterName: createForm.source === 'public_report' ? createForm.reporterName : undefined,
       });
+      addAlert({
+        title: '事件上报成功',
+        message: '事件已成功上报，应急预案已自动启动',
+      });
       setShowCreate(false);
       setCreateForm({
         tunnelId: 0,
@@ -88,7 +94,12 @@ export default function IncidentList() {
         description: '',
       });
       loadIncidents();
-    } catch {}
+    } catch (error: any) {
+      addAlert({
+        title: '事件上报失败',
+        message: error?.response?.data?.message || '请检查数据后重试',
+      });
+    }
     setCreating(false);
   };
 

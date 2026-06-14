@@ -1,4 +1,5 @@
 import { IsEnum, IsOptional, IsString, IsNumber, IsDateString } from 'class-validator';
+import { Type } from 'class-transformer';
 import { IncidentType, Severity, IncidentSource, IncidentStatus } from '../../../entities/incident.entity';
 
 export class CreateIncidentDto {
@@ -57,9 +58,11 @@ export class IncidentQueryDto {
 
   @IsOptional()
   @IsNumber()
+  @Type(() => Number)
   page?: number;
 
   @IsOptional()
   @IsNumber()
+  @Type(() => Number)
   pageSize?: number;
 }
